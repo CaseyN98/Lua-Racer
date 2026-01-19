@@ -5,23 +5,26 @@ function camera.load(target)
     camera.target = target
     camera.x = target.x
     camera.y = target.y
-    -- Zoomed out slightly (0.7) to see more of the environment
-    camera.scale = 0.7 
+    camera.scale = 0.7 -- zoom out slightly
 end
 
 function camera.update(dt)
     if not camera.target then return end
-    camera.x = camera.x + (camera.target.x - camera.x) * 5 * dt
-    camera.y = camera.y + (camera.target.y - camera.y) * 5 * dt
+    -- Smoothly follow target center
+    local tx = camera.target.x
+    local ty = camera.target.y
+    camera.x = camera.x + (tx - camera.x) * 5 * dt
+    camera.y = camera.y + (ty - camera.y) * 5 * dt
 end
 
 function camera.attach()
-    local cx = love.graphics.getWidth() / 2
-    local cy = love.graphics.getHeight() / 2
     love.graphics.push()
-    love.graphics.translate(cx, cy)
+    -- Scale first
     love.graphics.scale(camera.scale)
-    love.graphics.translate(-math.floor(camera.x), -math.floor(camera.y))
+    -- Translate so target is centered
+    local cx = love.graphics.getWidth() / (2 * camera.scale)
+    local cy = love.graphics.getHeight() / (2 * camera.scale)
+    love.graphics.translate(cx - camera.x, cy - camera.y)
 end
 
 function camera.detach()
